@@ -7,7 +7,7 @@ from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 
-engine = create_engine("sqlite:///Chinook_Sqlite.sqlite")
+engine = create_engine("sqlite:///file:Chinook_Sqlite.sqlite?mode=ro&uri=true")
 db = SQLDatabase(engine=engine)
 llm = ChatOpenAI(model="gpt-5-nano", temperature=0)
 toolkit = SQLDatabaseToolkit(db=db, llm=llm)
