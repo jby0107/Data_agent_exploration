@@ -1,0 +1,50 @@
+# docker-compose.yml
+version: "3.8"
+
+services:
+  data-agent:
+    build: .
+    image: data-agent:latest
+    container_name: data-agent
+    # Allow outbound network so the OpenAI API works.
+    # (Remove this line or set network_mode: "none" to fully block network.)
+    network_mode: "bridge"
+
+    # Run as read-only container filesystem, with writable tmpfs for temp files
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev
+      - /run:rw,noexec,nosuid,nodev
+
+    # Drop Linux capabilities and disallow privilege escalation
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+    # Resource limits (tweak as you like)
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1g
+
+    # Mount your data read-only; mount report dir read-write for charts
+    volumes:
+      - ./Chinook_Sqlite.sqlite:/app/Chinook_Sqlite.sqlite:ro
+      - ./report:/app/report:rw
+
+    # Pass keys/config via environment (compose reads from .env automatically)
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      # Optional: pin a model for your scripts
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-5-nano}
+      # Use a headless backend for matplotlib
+      - MPLBACKEND=Agg
+
+    # Default command (matches the Dockerfile CMD); override if needed
+    command: ["python", "sql_pandas_agent.py"]
+
+    # No need for ports unless you run a web UI; comment out otherwise
+    # ports:
+    #   - "7860:7860"
