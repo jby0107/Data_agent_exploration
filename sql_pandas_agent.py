@@ -50,8 +50,8 @@ def run_sql(sql: str) -> pd.DataFrame:
 
 # ---------- DEMO QUERY ----------
 user_question = (
-    "Join Customer and Invoice to find the top 10 customers by total spend. "
-    "Return customer name and total_spent. Then plot it as a bar chart."
+    "Please get the data needed to plot a line chart showing the monthly revenue for 2010"
+    "Then plot it as a line chart."
 )
 
 # 1) Ask the SQL agent for a query (we nudge it to include the SQL)
@@ -73,17 +73,17 @@ print(df.head())
 
 # ========== OPTION A: SAFE (no code exec) – WE do plotting ==========
 # (Keep this as a fallback even if you use the Pandas agent below)
-out_dir = pathlib.Path("report/figs"); out_dir.mkdir(parents=True, exist_ok=True)
-plt.figure()
-x, y = df.columns[:2]  # assume first col is label, second is value
-plt.bar(df[x].astype(str), df[y])
-plt.xticks(rotation=60, ha="right")
-plt.title("Top customers by total spend")
-plt.tight_layout()
-safe_plot_path = out_dir / "customers_top_spend_safe.png"
-plt.savefig(safe_plot_path, bbox_inches="tight")
-plt.close()
-print("Saved safe plot to:", safe_plot_path)
+# out_dir = pathlib.Path("report/figs"); out_dir.mkdir(parents=True, exist_ok=True)
+# plt.figure()
+# x, y = df.columns[:2]  # assume first col is label, second is value
+# plt.bar(df[x].astype(str), df[y])
+# plt.xticks(rotation=60, ha="right")
+# plt.title("Top customers by total spend")
+# plt.tight_layout()
+# safe_plot_path = out_dir / "customers_top_spend_safe.png"
+# plt.savefig(safe_plot_path, bbox_inches="tight")
+# plt.close()
+# print("Saved safe plot to:", safe_plot_path)
 
 # ========== OPTION B: PANDAS AGENT (code exec) – it does the plotting ==========
 # WARNING: This enables LLM-generated Python execution.
@@ -100,13 +100,12 @@ plot_cmd = (
     "Return ONLY executable Python (no backticks, no comments, no prose). "
     "Assume `df` is already defined and imported with pandas as pd; "
     "matplotlib.pyplot is imported as plt. "
-    "Task: sort df by the numeric column named 'total_spent' descending, then plot a "
-    "horizontal bar chart with y=the name column (try 'customer' or 'customer_name' if present) "
-    "and x='total_spent'. Set a title. Save to 'report/figs/customers_top_spend_agent.png' and close the figure."
+    "Task: Plot a line chart with x=the month column and y=the total_spent column. "
+    "Set a title. Save to 'report/figs/monthly_revenue_agent.png' and close the figure."
 )
 eda_out = eda_agent.invoke({"input": plot_cmd})
 print("\n--- Pandas agent output ---\n", eda_out.get("output"))
 
 print("\nChart paths:")
-print("  Safe (no code exec):", safe_plot_path)
-print("  Pandas agent plot  : report/figs/customers_top_spend_agent.png")
+# print("  Safe (no code exec):", safe_plot_path)
+print("  Pandas agent plot  : report/figs/monthly_revenue_agent.png")
